@@ -3,12 +3,11 @@
 # This is a convenience script for creating HTML and PDF from DynaList
 # using Pandoc.
 #
-# - You may need a more recent version of Pandoc than
-#   comes with your system to support HTML->PDF with stylesheets.
-# - dl2md should be in your $PATH.
+# - You may need a more recent version of Pandoc than comes with your
+#   system to support HTML->PDF with stylesheets.
 # - Set the DL2MD_OUTPUT_FOLDER to the absolute path of your output folder.
 # - You may set DL2MD_OUTPUT_FILENAME if you wish, default 'dl2md'
-# - If you use a stylesheet, it should be named style.css in your output folder.
+# - Requires xclip to copy Dynalist URL from the clipboard.
 # - PDF creation requires wkhtmltopdf to be installed.
 
 # Verify output folder
