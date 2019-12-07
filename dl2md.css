@@ -1,0 +1,15 @@
+body {
+    font-family: sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+h2 {
+    border-bottom: thin solid black;
+}
+
+img {
+    max-width: 100%;
+}
