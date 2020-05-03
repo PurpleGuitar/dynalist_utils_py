@@ -1,19 +1,26 @@
 """ Converts a Dynalist doc to Markdown format """
+from typing import Dict, List
 
 import re
 
-LINK_REGEX = re.compile(r"\[([^]]+)\]\(([^)]+)\)")
+LINK_REGEX = re.compile(r"\[([^]]+)\]\(([^)]+)\)|(http[s]*://[^ ]+)")
 
-def find_links(source):
+def find_links(source: str) -> List[Dict[str, str]]:
     """ Find Markdown links in the given source string. """
-    links = []
-    matches = LINK_REGEX.findall(source)
+    links: List[Dict[str, str]] = []
+    matches: List[str] = LINK_REGEX.findall(source)
     if not matches:
         return links
     for match in matches:
-        result = {}
-        result["title"] = match[0]
-        result["url"] = match[1]
+        result: Dict[str, str] = {}
+        if match[0]:
+            # This is a full markdown link with title and URL
+            result["title"] = match[0]
+            result["url"] = match[1]
+        else:
+            # This is a bare link -- no title
+            result["title"] = ""
+            result["url"] = match[2]
         links.append(result)
     return links
 

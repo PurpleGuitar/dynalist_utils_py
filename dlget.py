@@ -7,6 +7,7 @@ Download a Dynalist document to a JSON file.
 # Python
 import argparse
 import os
+import logging
 import sys
 
 # Project
@@ -22,8 +23,8 @@ def main():
         url = app_utils.get_url(args, os.environ)
         doc = dynalist.Document.from_url(url, token)
         args.outfile.write(doc.to_json())
-    except Exception as exception: # pylint: disable=broad-except
-        app_utils.eprint(exception)
+    except Exception: # pylint: disable=broad-except
+        logging.exception("An error occured.")
         sys.exit(1)
 
 
