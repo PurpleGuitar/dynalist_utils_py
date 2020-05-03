@@ -87,13 +87,6 @@ def get_dated_nodes(doc) -> List[DatedNode]:
 def create_message(dated_nodes: List[DatedNode]) -> MIMEMultipart:
     """ Send reminder email """
 
-    # Due today
-    today = datetime.today().strftime('%Y-%m-%d')
-    logging.debug("Today: %s", today)
-    due_today = [dated_node for dated_node in dated_nodes if dated_node.date == today]
-    for item in due_today:
-        logging.debug("Due today: %s", item.node["content"])
-
 
     email_from = os.getenv("EMAIL_FROM")
     if not email_from:
@@ -105,20 +98,42 @@ def create_message(dated_nodes: List[DatedNode]) -> MIMEMultipart:
         logging.error("Please provide environment variable EMAIL_TO.")
         sys.exit(1)
 
-    msg = MIMEMultipart("alternative")
+    msg: MIMEMultipart = MIMEMultipart("alternative")
     msg["From"] = email_from
     msg["To"] = email_to
-    msg["Subject"] = "Items due for " + today
 
-    html = "<html>"
+    msg["Subject"] = "Items due for " +  datetime.today().strftime('%Y-%m-%d')
+
+    html: str = "<html>"
     html += "<body>"
-    html += "<p>Here is some <b>bold text</b>!</p>"
-    html += "<p>Here is a <a href='https://example.com'>link</a></p>"
+    html += render_due_today(dated_nodes)
     html += "</body>"
     html += "</html>"
     msg.attach(MIMEText(html, "html"))
 
     return msg
+
+def render_due_today(dated_nodes: List[DatedNode]) -> str:
+    """ Render tasks due today. """
+
+    html: str = ""
+
+    today = datetime.today().strftime('%Y-%m-%d')
+    logging.debug("Today: %s", today)
+    due_today = [dated_node for dated_node in dated_nodes if dated_node.date == today]
+    if not due_today:
+        return ""
+
+    html += "<h3>Due Today</h3>"
+    html += "<ul>"
+    for item in due_today:
+        html += "<li>"
+        html += item.node["content"]
+        html += "</li>"
+    html += "</ul>"
+
+    return html
+
 
 def send_email(message, trace: bool):
     """ Send reminder email """
