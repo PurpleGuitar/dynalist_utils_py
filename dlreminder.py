@@ -6,7 +6,8 @@ Emails a reminder of due tasks.
 
 # Python
 from datetime import datetime
-from email.message import EmailMessage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from operator import attrgetter
 from typing import Any, Dict, List
 import argparse
@@ -41,8 +42,11 @@ def main():
         # Get dated nodes
         dated_nodes: List[DatedNode] = get_dated_nodes(doc)
 
+        # Create email
+        message: MIMEMultipart = create_message(dated_nodes)
+
         # Send email
-        send_email(dated_nodes, args.trace)
+        send_email(message, args.trace)
 
 
     except Exception: # pylint: disable=broad-except
@@ -80,7 +84,7 @@ def get_dated_nodes(doc) -> List[DatedNode]:
 
     return dated_nodes
 
-def send_email(dated_nodes: List[DatedNode], trace: bool):
+def create_message(dated_nodes: List[DatedNode]) -> MIMEMultipart:
     """ Send reminder email """
 
     # Due today
@@ -101,11 +105,23 @@ def send_email(dated_nodes: List[DatedNode], trace: bool):
         logging.error("Please provide environment variable EMAIL_TO.")
         sys.exit(1)
 
-    msg = EmailMessage()
+    msg = MIMEMultipart("alternative")
     msg["From"] = email_from
     msg["To"] = email_to
-    msg["Subject"] = "Items for Today"
-    msg.set_content("Hello World")
+    msg["Subject"] = "Items due for " + today
+
+    html = "<html>"
+    html += "<body>"
+    html += "<p>Here is some <b>bold text</b>!</p>"
+    html += "<p>Here is a <a href='https://example.com'>link</a></p>"
+    html += "</body>"
+    html += "</html>"
+    msg.attach(MIMEText(html, "html"))
+
+    return msg
+
+def send_email(message, trace: bool):
+    """ Send reminder email """
 
     email_server = os.getenv("EMAIL_SERVER")
     if not email_server:
@@ -128,7 +144,7 @@ def send_email(dated_nodes: List[DatedNode], trace: bool):
         if trace:
             smtp.set_debuglevel(2)
         smtp.login(email_username, email_password)
-        smtp.send_message(msg)
+        smtp.send_message(message)
 
 
 if __name__ == "__main__":
