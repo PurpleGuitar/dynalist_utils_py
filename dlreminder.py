@@ -6,6 +6,7 @@ Emails a reminder of due tasks.
 
 # Python
 from datetime import datetime
+from datetime import timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from operator import attrgetter
@@ -28,6 +29,7 @@ class DatedNode: # pylint: disable=too-few-public-methods
         self.date: str = ""
         self.node: Dict[str, Any] = None
         self.link: str = ""
+        self.checked: bool = False
 
 def main():
     """ Check args and download doc """
@@ -82,6 +84,7 @@ def get_dated_nodes(doc) -> List[DatedNode]:
                                doc.get_metadata()["doc_id"] +
                                "#z=" +
                                node["id"])
+            dated_node.checked = "checked" in node and node["checked"]
             dated_nodes.append(dated_node)
 
     # Sort nodes by date
@@ -91,7 +94,6 @@ def get_dated_nodes(doc) -> List[DatedNode]:
 
 def create_message(dated_nodes: List[DatedNode]) -> MIMEMultipart:
     """ Send reminder email """
-
 
     email_from = os.getenv("EMAIL_FROM")
     if not email_from:
@@ -112,8 +114,11 @@ def create_message(dated_nodes: List[DatedNode]) -> MIMEMultipart:
     html: str = "<html>"
     html += "<body>"
     html += render_due_today(dated_nodes)
+    html += render_overdue(dated_nodes)
+    html += render_due_soon(dated_nodes)
     html += "</body>"
     html += "</html>"
+    logging.debug(html)
     msg.attach(MIMEText(html, "html"))
 
     return msg
@@ -122,6 +127,7 @@ def create_message(dated_nodes: List[DatedNode]) -> MIMEMultipart:
 def render_due_today(dated_nodes: List[DatedNode]) -> str:
     """ Render tasks due today. """
 
+    logging.debug("DUE TODAY")
     html: str = ""
 
     today = datetime.today().strftime('%Y-%m-%d')
@@ -130,9 +136,59 @@ def render_due_today(dated_nodes: List[DatedNode]) -> str:
     if not due_today:
         return ""
 
-    html += "<h3>Due Today</h3>"
+    html += "<h1>Due Today</h1>"
     html += "<ul>"
     for item in due_today:
+        html += render_list_item(item)
+    html += "</ul>"
+
+    return html
+
+def render_overdue(dated_nodes: List[DatedNode]) -> str:
+    """ Render tasks due today. """
+
+    logging.debug("OVERDUE")
+    html: str = ""
+
+    today = datetime.today().strftime('%Y-%m-%d')
+    logging.debug("Today: %s", today)
+    overdue = [dated_node
+               for dated_node in dated_nodes
+               if dated_node.date < today
+               and not dated_node.checked]
+    if not overdue:
+        return ""
+
+    html += "<h1>Overdue</h1>"
+    html += "<ul>"
+    for item in overdue:
+        html += render_list_item(item)
+    html += "</ul>"
+
+    return html
+
+
+def render_due_soon(dated_nodes: List[DatedNode]) -> str:
+    """ Render tasks due today. """
+
+    logging.debug("DUE SOON")
+    html: str = ""
+
+    today = datetime.today().strftime('%Y-%m-%d')
+    logging.debug("Today: %s", today)
+    week_from_now = (datetime.today() + timedelta(days=7)).strftime('%Y-%m-%d')
+    logging.debug("Week from Now: %s", week_from_now)
+    due_soon = [dated_node
+                for dated_node in dated_nodes
+                if dated_node.date > today
+                and dated_node.date < week_from_now
+                and not dated_node.checked]
+    if not due_soon:
+        return ""
+
+    html += "<h1>Due Soon</h1>"
+    html += "<ul>"
+    for item in due_soon:
         html += render_list_item(item)
     html += "</ul>"
 
@@ -141,13 +197,14 @@ def render_due_today(dated_nodes: List[DatedNode]) -> str:
 
 def render_list_item(item: DatedNode) -> str:
     """ Renders a single item as an html list item """
+    logging.debug(item.node["content"])
     html: str = ""
     html += "<li>"
     html += item.node["content"]
-    html += "<a href='" + item.link + "'>Link</a>"
+    html += " <a href='" + item.link + "'>Link</a>"
     if item.node["note"]:
         html += "<br/>"
-        html += item.node["note"]
+        html += "<small>" + item.node["note"]
     html += "</li>"
     return html
 
