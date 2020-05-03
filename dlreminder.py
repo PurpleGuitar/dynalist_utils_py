@@ -27,6 +27,7 @@ class DatedNode: # pylint: disable=too-few-public-methods
     def __init__(self):
         self.date: str = ""
         self.node: Dict[str, Any] = None
+        self.link: str = ""
 
 def main():
     """ Check args and download doc """
@@ -77,6 +78,10 @@ def get_dated_nodes(doc) -> List[DatedNode]:
             dated_node: DatedNode = DatedNode()
             dated_node.date = match[1]
             dated_node.node = node
+            dated_node.link = ("https://dynalist.io/d/" +
+                               doc.get_metadata()["doc_id"] +
+                               "#z=" +
+                               node["id"])
             dated_nodes.append(dated_node)
 
     # Sort nodes by date
@@ -113,6 +118,7 @@ def create_message(dated_nodes: List[DatedNode]) -> MIMEMultipart:
 
     return msg
 
+
 def render_due_today(dated_nodes: List[DatedNode]) -> str:
     """ Render tasks due today. """
 
@@ -127,11 +133,22 @@ def render_due_today(dated_nodes: List[DatedNode]) -> str:
     html += "<h3>Due Today</h3>"
     html += "<ul>"
     for item in due_today:
-        html += "<li>"
-        html += item.node["content"]
-        html += "</li>"
+        html += render_list_item(item)
     html += "</ul>"
 
+    return html
+
+
+def render_list_item(item: DatedNode) -> str:
+    """ Renders a single item as an html list item """
+    html: str = ""
+    html += "<li>"
+    html += item.node["content"]
+    html += "<a href='" + item.link + "'>Link</a>"
+    if item.node["note"]:
+        html += "<br/>"
+        html += item.node["note"]
+    html += "</li>"
     return html
 
 
