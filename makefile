@@ -34,4 +34,3 @@ dlreminder:
 		--env EMAIL_USERNAME \
 		--env EMAIL_PASSWORD \
 		dynalist_utils /bin/bash -c 'cd apps/dlreminder; ./dlreminder --trace'
-

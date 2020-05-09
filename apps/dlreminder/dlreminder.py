@@ -204,7 +204,7 @@ def render_list_item(item: DatedNode) -> str:
     html += " <a href='" + item.link + "'>Link</a>"
     if item.node["note"]:
         html += "<br/>"
-        html += "<small>" + item.node["note"]
+        html += "<small>" + item.node["note"] + "</small>"
     html += "</li>"
     return html
 
