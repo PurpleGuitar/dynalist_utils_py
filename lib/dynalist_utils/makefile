@@ -1,19 +1,19 @@
 .PHONY: test lint watch edit clean
 
 test:
-	coverage run --branch --source . --omit "test_*" -m unittest discover -s test
+	export PYTHONPATH=..:${PYTHONPATH}; coverage run --branch --source . --omit "test_*" -m unittest discover -s test
 	coverage report
 	coverage html
 
 lint:
-	pylint *.py test/*.py
-	mypy *.py test/*.py
+	export PYTHONPATH=..:${PYTHONPATH}; pylint *.py test/*.py
+	export MYPYPATH=..; mypy *.py test/*.py
 
 watch:
 	while inotifywait -e close_write,moved_to,create . test; do clear; make lint; make test; done
 
 edit:
-	vim makefile *.py test/*.py
+	${EDITOR} makefile *.py test/*.py
 
 clean:
 	rm -rf __pycache__

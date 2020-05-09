@@ -11,8 +11,8 @@ import logging
 import sys
 
 # Project
-import app_utils
-import dynalist
+from dynalist_utils import app_utils
+from dynalist_utils import dynalist
 
 
 def main():

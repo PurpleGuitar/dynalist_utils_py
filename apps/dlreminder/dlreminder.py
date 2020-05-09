@@ -19,7 +19,7 @@ import smtplib
 import sys
 
 # Project
-import app_utils
+from dynalist_utils import app_utils
 
 DATE_REGEX = re.compile(r"!\((\d\d\d\d-\d\d\-\d\d).*\)")
 

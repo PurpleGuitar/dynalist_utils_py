@@ -7,7 +7,7 @@ import logging
 import os
 import sys
 
-import dynalist
+from dynalist_utils import dynalist
 
 LOGGING_FORMAT = "%(asctime)s %(levelname)s %(module)s/%(funcName)s:%(lineno)d\n%(message)s"
 
