@@ -53,12 +53,12 @@ if [ ! -f "${STYLESHEET_TARGET_FILENAME}" ]; then
 fi
 
 # Create json file from Dynalist
-${DIR}/dlget.py \
+${DIR}/../dlget/dlget \
     --url "${DL2MD_DYNALIST_URL}" \
     --outfile "${DL2MD_OUTPUT_FOLDER}/${DL2MD_OUTPUT_FILENAME}.json"
 
 # Create md file from Dynalist
-${DIR}/dl2md.py \
+${DIR}/dl2md \
     --url "${DL2MD_DYNALIST_URL}" \
     --outfile "${DL2MD_OUTPUT_FOLDER}/${DL2MD_OUTPUT_FILENAME}.md"
 
