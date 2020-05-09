@@ -13,7 +13,7 @@ watch:
 	while inotifywait -e close_write,moved_to,create . test; do clear; make lint; make test; done
 
 edit:
-	vim makefile dl*.py *.py test/*.py
+	vim makefile *.py test/*.py
 
 clean:
 	rm -rf __pycache__

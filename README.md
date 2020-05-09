@@ -10,8 +10,7 @@ image support, and Markdown support. It also has an API allowing for
 programmatic access, which these tools use.
 
 Using the tools requires your Dynalist developer API token, which you
-can get from the [Dynalist developer
-page](https://dynalist.io/developer).
+can get from the [Dynalist developer page](https://dynalist.io/developer).
 
 Scripts
 =======
