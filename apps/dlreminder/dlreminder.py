@@ -56,7 +56,6 @@ def main():
         logging.exception("An error occured.")
         sys.exit(1)
 
-
 def get_arguments():
     """ Parse command line arguments """
     parser = argparse.ArgumentParser(description="Populate a template from a Dynalist node")
@@ -116,13 +115,13 @@ def create_message(dated_nodes: List[DatedNode]) -> MIMEMultipart:
     html += render_due_today(dated_nodes)
     html += render_overdue(dated_nodes)
     html += render_due_soon(dated_nodes)
+    html += render_this_week(dated_nodes)
     html += "</body>"
     html += "</html>"
     logging.debug(html)
     msg.attach(MIMEText(html, "html"))
 
     return msg
-
 
 def render_due_today(dated_nodes: List[DatedNode]) -> str:
     """ Render tasks due today. """
@@ -167,7 +166,6 @@ def render_overdue(dated_nodes: List[DatedNode]) -> str:
 
     return html
 
-
 def render_due_soon(dated_nodes: List[DatedNode]) -> str:
     """ Render tasks due today. """
 
@@ -176,12 +174,12 @@ def render_due_soon(dated_nodes: List[DatedNode]) -> str:
 
     today = datetime.today().strftime('%Y-%m-%d')
     logging.debug("Today: %s", today)
-    week_from_now = (datetime.today() + timedelta(days=7)).strftime('%Y-%m-%d')
-    logging.debug("Week from Now: %s", week_from_now)
+    three_days_from_now = (datetime.today() + timedelta(days=3)).strftime('%Y-%m-%d')
+    logging.debug("Three Days from Now: %s", three_days_from_now)
     due_soon = [dated_node
                 for dated_node in dated_nodes
                 if dated_node.date > today
-                and dated_node.date < week_from_now
+                and dated_node.date <= three_days_from_now
                 and not dated_node.checked]
     if not due_soon:
         return ""
@@ -194,6 +192,33 @@ def render_due_soon(dated_nodes: List[DatedNode]) -> str:
 
     return html
 
+def render_this_week(dated_nodes: List[DatedNode]) -> str:
+    """ Render tasks due today. """
+
+    logging.debug("DUE THIS WEEK")
+    html: str = ""
+
+    today = datetime.today().strftime('%Y-%m-%d')
+    logging.debug("Today: %s", today)
+    three_days_from_now = (datetime.today() + timedelta(days=3)).strftime('%Y-%m-%d')
+    logging.debug("Three Days from Now: %s", three_days_from_now)
+    week_from_now = (datetime.today() + timedelta(days=7)).strftime('%Y-%m-%d')
+    logging.debug("Week from Now: %s", week_from_now)
+    due_this_week = [dated_node
+                for dated_node in dated_nodes
+                if dated_node.date > three_days_from_now
+                and dated_node.date <= week_from_now
+                and not dated_node.checked]
+    if not due_this_week:
+        return ""
+
+    html += "<h1>This Week</h1>"
+    html += "<ul>"
+    for item in due_this_week:
+        html += render_list_item(item)
+    html += "</ul>"
+
+    return html
 
 def render_list_item(item: DatedNode) -> str:
     """ Renders a single item as an html list item """
@@ -207,7 +232,6 @@ def render_list_item(item: DatedNode) -> str:
         html += "<small>" + item.node["note"] + "</small>"
     html += "</li>"
     return html
-
 
 def send_email(message, trace: bool):
     """ Send reminder email """
