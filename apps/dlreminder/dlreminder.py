@@ -63,7 +63,7 @@ def get_arguments():
     """ Parse command line arguments """
     parser = argparse.ArgumentParser(description="Populate a template from a Dynalist node")
     app_utils.add_standard_arguments(parser)
-    parser.add_argument("--dryrun",
+    parser.add_argument("--dry-run",
                         action="store_true",
                         help="Don't send any emails")
     return parser.parse_args()
