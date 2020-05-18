@@ -36,8 +36,12 @@ def main():
     try:
         # Get arguments
         args = get_arguments()
-        logging.basicConfig(format=app_utils.LOGGING_FORMAT,
-                            level=logging.DEBUG if args.trace else logging.WARNING)
+        logging.info(args)
+        logging.basicConfig(format=app_utils.LOGGING_FORMAT)
+        if args.trace:
+            logging.getLogger().setLevel(logging.DEBUG)
+            logging.warning("--trace given, showing debug messages.")
+            logging.warning("Logging level: %d", logging.getLogger().getEffectiveLevel())
 
         # Get doc
         doc = app_utils.read_doc(args)
@@ -61,11 +65,9 @@ def main():
 
 def get_arguments():
     """ Parse command line arguments """
-    parser = argparse.ArgumentParser(description="Populate a template from a Dynalist node")
+    parser = argparse.ArgumentParser(description="Send a list of email reminders")
     app_utils.add_standard_arguments(parser)
-    parser.add_argument("--dry-run",
-                        action="store_true",
-                        help="Don't send any emails")
+    parser.add_argument("--dry-run", action="store_true", help="Don't send any emails")
     return parser.parse_args()
 
 def get_dated_nodes(doc) -> List[DatedNode]:
