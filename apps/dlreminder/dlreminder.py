@@ -49,7 +49,10 @@ def main():
         message: MIMEMultipart = create_message(dated_nodes)
 
         # Send email
-        send_email(message, args.trace)
+        if args.dry_run:
+            logging.warning("--dry-run given, not sending emails.")
+        else:
+            send_email(message, args.trace)
 
 
     except Exception: # pylint: disable=broad-except
@@ -60,6 +63,9 @@ def get_arguments():
     """ Parse command line arguments """
     parser = argparse.ArgumentParser(description="Populate a template from a Dynalist node")
     app_utils.add_standard_arguments(parser)
+    parser.add_argument("--dryrun",
+                        action="store_true",
+                        help="Don't send any emails")
     return parser.parse_args()
 
 def get_dated_nodes(doc) -> List[DatedNode]:
@@ -115,7 +121,7 @@ def create_message(dated_nodes: List[DatedNode]) -> MIMEMultipart:
     html += render_due_today(dated_nodes)
     html += render_overdue(dated_nodes)
     html += render_due_soon(dated_nodes)
-    html += render_this_week(dated_nodes)
+    html += render_due_this_week(dated_nodes)
     html += "</body>"
     html += "</html>"
     logging.debug(html)
@@ -192,7 +198,7 @@ def render_due_soon(dated_nodes: List[DatedNode]) -> str:
 
     return html
 
-def render_this_week(dated_nodes: List[DatedNode]) -> str:
+def render_due_this_week(dated_nodes: List[DatedNode]) -> str:
     """ Render tasks due today. """
 
     logging.debug("DUE THIS WEEK")
