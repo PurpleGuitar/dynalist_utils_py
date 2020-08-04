@@ -18,19 +18,29 @@ class Document:
         """ Creates a Document object from a JSON file. """
         parsed_url = parse_url(url)
         doc_id = parsed_url["doc_id"]
-        return Document.from_api(doc_id, token)
+        doc = Document.from_api(doc_id, token)
+        doc.get_metadata().update(parsed_url)
+        return doc
 
 
     @staticmethod
     def from_api(doc_id, token): # pragma: no cover
-        """ Creates a Document object from a JSON file. """
-        return Document(get_data_from_api(doc_id, token))
+        """ Creates a Document object from API. """
+        doc = Document(get_data_from_api(doc_id, token))
+        doc.get_metadata()["doc_id"] = doc_id
+        return doc
 
 
     @staticmethod
     def from_json_file(filename):
         """ Creates a Document object from a JSON file. """
         return Document(load_json_from_file(filename))
+
+
+    @staticmethod
+    def from_json_stream(stream):
+        """ Creates a Document object from a JSON stream. """
+        return Document(load_json_from_stream(stream))
 
 
     @staticmethod
@@ -155,6 +165,11 @@ def load_json_from_file(filename):
     """ Utility method: retrieves JSON-encoded data from file """
     with open(filename) as infile:
         return json.load(infile)
+
+
+def load_json_from_stream(stream):
+    """ Utility method: retrieves JSON-encoded data from file stream """
+    return json.load(stream)
 
 
 def get_index_by_node_id(data):

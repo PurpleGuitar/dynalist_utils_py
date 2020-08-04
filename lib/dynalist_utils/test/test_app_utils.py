@@ -7,7 +7,7 @@ import unittest
 import mock
 
 # Project
-import app_utils
+from dynalist_utils import app_utils
 
 
 class TestGetUrl(unittest.TestCase):
@@ -18,8 +18,7 @@ class TestGetUrl(unittest.TestCase):
         args = mock.Mock()
         args.url = None
         env = {}
-        with self.assertRaises(Exception):
-            app_utils.get_url(args, env=env)
+        self.assertIsNone(app_utils.get_url(args, env=env))
 
     def test_arg_url(self):
         """ URL from arg.url """

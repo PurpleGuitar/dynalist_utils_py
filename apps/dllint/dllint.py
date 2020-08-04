@@ -8,13 +8,13 @@ Simple linter for Dynalist docs.
 import argparse
 import collections
 import enum
-import os
+import logging
 import sys
 
 # Project
-import app_utils
-import dynalist
-import markdown
+from dynalist_utils import app_utils
+from dynalist_utils import dynalist
+from dynalist_utils import markdown
 
 class Level(enum.Enum):
     """ Enumerates message levels """
@@ -31,32 +31,23 @@ def main():
     """ Check args and download doc """
     try:
         args = get_arguments()
-        token = app_utils.get_token(args, os.environ)
-        url = app_utils.get_url(args, os.environ)
-        doc = dynalist.Document.from_url(url, token)
-        messages = []
-        messages.extend(check_bad_internal_links(doc))
-        if not messages:
-            app_utils.eprint("No warnings or errors.")
-            sys.exit(0)
-        for message in messages:
-            app_utils.eprint("{}: {}\n{}".format(message.level, message.summary, message.details))
+        logging.basicConfig(format=app_utils.LOGGING_FORMAT,
+                            level=logging.DEBUG if args.trace else logging.WARNING)
+        doc = app_utils.read_doc(args)
+        check_bad_internal_links(doc)
+    except Exception: # pylint: disable=broad-except
+        logging.exception("An error occured.")
         sys.exit(1)
-    except Exception as exception: # pylint: disable=broad-except
-        app_utils.eprint("Unexpected exception!  Details follow.")
-        raise exception
 
 
 def get_arguments():
     """ Parse command line arguments """
     parser = argparse.ArgumentParser(description="Run some checks on a Dynalist document")
-    app_utils.add_argument_url(parser)
-    app_utils.add_argument_token(parser)
+    app_utils.add_standard_arguments(parser)
     return parser.parse_args()
 
 def check_bad_internal_links(doc):
     """ Check for internal links that don't point to a valid node. """
-    messages = []
     for node in doc.get_nodes():
         links = markdown.find_links(node["content"])
         if "note" in node:
@@ -74,12 +65,8 @@ def check_bad_internal_links(doc):
                 continue
             if doc.has_node(url["zoom_node_id"]):
                 continue
-            messages.append(Message(
-                level=Level.ERROR,
-                summary="Bad internal link (target node does not exist)",
-                details="Node id: {}\nContent: {}\nBad link: {}".format(
-                    node["id"], node["content"], link["url"])))
-    return messages
+            logging.warning("Target node does not exist:\nNode id: %s\nContent: %s\nBad link: %s",
+                            node["id"], node["content"], link["url"])
 
 
 if __name__ == "__main__":

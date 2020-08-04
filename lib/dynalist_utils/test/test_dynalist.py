@@ -6,7 +6,7 @@ import os
 import unittest
 
 # Project
-import dynalist
+from dynalist_utils import dynalist
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -99,10 +99,20 @@ class TestDocument(unittest.TestCase):
         self.assertEqual(6, len(children))
 
 
-    def test_from_json(self):
+    def test_from_json_file(self):
         """ Test a simple document """
         doc = dynalist.Document.from_json_file(
             os.path.join(TEST_DIR, "test_colors.json"))
+        root = doc.get_root()
+        self.assertEqual("test", root["content"])
+        children = doc.get_children(root["id"])
+        self.assertEqual(6, len(children))
+
+
+    def test_from_json_stream(self):
+        """ Test a simple document """
+        with open(os.path.join(TEST_DIR, "test_colors.json")) as stream:
+            doc = dynalist.Document.from_json_stream(stream)
         root = doc.get_root()
         self.assertEqual("test", root["content"])
         children = doc.get_children(root["id"])

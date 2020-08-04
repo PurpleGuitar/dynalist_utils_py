@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
 """
-Convert a Dynalist doc to a Markdown file.
+Download a Dynalist document to a JSON file.
 """
 
 # Python
 import argparse
 import os
+import logging
 import sys
 
 # Project
-import app_utils
-import dynalist
-import markdown
+from dynalist_utils import app_utils
+from dynalist_utils import dynalist
 
 
 def main():
@@ -21,18 +21,16 @@ def main():
         args = get_arguments()
         token = app_utils.get_token(args, os.environ)
         url = app_utils.get_url(args, os.environ)
-        parsed_url = dynalist.parse_url(url)
-        zoom_node_id = parsed_url["zoom_node_id"] if parsed_url["zoom_node_id"] else "root"
         doc = dynalist.Document.from_url(url, token)
-        args.outfile.write(markdown.convert(doc, zoom_node_id))
-    except Exception as exception: # pylint: disable=broad-except
-        app_utils.eprint(exception)
+        args.outfile.write(doc.to_json())
+    except Exception: # pylint: disable=broad-except
+        logging.exception("An error occured.")
         sys.exit(1)
 
 
 def get_arguments():
     """ Parse command line arguments """
-    parser = argparse.ArgumentParser(description="Convert a Dynalist doc to a Markdown file.")
+    parser = argparse.ArgumentParser(description="Download a Dynalist document to a JSON file.")
     app_utils.add_argument_url(parser)
     app_utils.add_argument_token(parser)
     app_utils.add_argument_outfile(parser)

@@ -7,8 +7,8 @@ import pathlib
 import unittest
 
 # Project
-import dynalist
-import markdown
+from dynalist_utils import dynalist
+from dynalist_utils import markdown
 
 
 # pylint: disable=line-too-long
@@ -43,13 +43,29 @@ LINK_TESTS = [
     {"title": "No Links",
      "source": "",
      "expected": []},
-    {"title": "Simple Link",
+    {"title": "Simple Markdown Link",
      "source": "This is an [Example](https://www.example.com).",
      "expected": [{"title": "Example", "url": "https://www.example.com"}]},
-    {"title": "Two Links",
+    {"title": "Two Markdown Links",
      "source": "Here are two links: [Example1](https://www.example.com) and [Example2](https://www.github.com).",
      "expected": [{"title": "Example1", "url": "https://www.example.com"},
-                  {"title": "Example2", "url": "https://www.github.com"}]}]
+                  {"title": "Example2", "url": "https://www.github.com"}]},
+    {"title": "Bare link",
+     "source": "You can find it here: https://www.example.com",
+     "expected": [{"title": "", "url": "https://www.example.com"}]},
+    {"title": "Two bare links",
+     "source": "You can find it here: https://www.example.com or here: https://www.example.org",
+     "expected": [{"title": "", "url": "https://www.example.com"},
+                  {"title": "", "url": "https://www.example.org"}]},
+    {"title": "Bare followed by Markdown link",
+     "source": "You can find it here: https://www.example.com or here: [Example](https://www.example.org)",
+     "expected": [{"title": "", "url": "https://www.example.com"},
+                  {"title": "Example", "url": "https://www.example.org"}]},
+    {"title": "Markdown followed by bare link",
+     "source": "You can find it here: [Example](https://www.example.com) or here: https://www.example.org",
+     "expected": [{"title": "Example", "url": "https://www.example.com"},
+                  {"title": "", "url": "https://www.example.org"}]}
+    ]
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
