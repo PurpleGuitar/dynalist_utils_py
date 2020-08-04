@@ -17,8 +17,10 @@ edit:
 
 clean:
 	rm -rf __pycache__
+	rm -rf test/__pycache__
 	rm -f .coverage
 	rm -rf htmlcov
+	rm -rf .mypy_cache
 	rm -f *.json
 
 # vim: foldmethod=indent
