@@ -24,7 +24,7 @@ from dynalist_utils import app_utils
 DATE_REGEX = re.compile(r"!\((\d\d\d\d-\d\d\-\d\d).*\)")
 
 class DatedNode: # pylint: disable=too-few-public-methods
-    """ Composite of a node an the first date found in it. """
+    """ Composite of a node and the first date found in it. """
     def __init__(self):
         self.date: str = ""
         self.node: Dict[str, Any] = None
