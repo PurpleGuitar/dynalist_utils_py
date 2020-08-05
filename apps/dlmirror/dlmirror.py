@@ -129,7 +129,6 @@ def update_dynalist(doc, token, mirror_nodes):
             change_needed = True
             change["color"] = mirror_node.source_node["color"]
 
-
         # Update if needed
         if change_needed:
             changes.append(change)
