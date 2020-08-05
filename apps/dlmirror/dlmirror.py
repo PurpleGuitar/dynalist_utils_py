@@ -88,16 +88,32 @@ def update_dynalist(doc, token, mirror_nodes: List[MirrorNode]):
              "token": token,
              "changes": changes }
     for mirror_node in mirror_nodes:
+        change_needed = False
         link_text = f"[{mirror_node.link['title']}]({mirror_node.link['url']})"
         change = { "action": "edit" }
         change["node_id"] = mirror_node.target_node["id"]
-        change["content"] = mirror_node.source_node["content"]
-        change["note"] = mirror_node.source_node["note"] + link_text
-        changes.append(change)
-    print(data)
-    response = requests.post("https://dynalist.io/api/v1/doc/edit", json=data)
-    print(response)
-    print(response.json())
+        if mirror_node.source_node["content"] != mirror_node.target_node["content"]:
+            change_needed = True
+            change["content"] = mirror_node.source_node["content"]
+        if "note" not in mirror_node.source_node:
+            change_needed = True
+            change["note"] = link_text
+        elif mirror_node.source_node["note"] == "":
+            target_note = link_text
+            if mirror_node.target_node["note"] != target_note:
+                change_needed = True
+                change["note"] = target_note
+        else:
+            target_note = mirror_node.source_node["note"] + "\n" + link_text
+            if mirror_node.target_node["note"] != target_note:
+                change_needed = True
+                change["note"] = target_note
+        if change_needed:
+            changes.append(change)
+    if len(changes) == 0:
+        logging.info("No changes required.")
+    else:
+        response = requests.post("https://dynalist.io/api/v1/doc/edit", json=data)
 
 if __name__ == "__main__":
     main()
