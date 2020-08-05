@@ -21,6 +21,9 @@ are already up-to-date, the document will be unchanged.
 import argparse
 import logging
 import sys
+import requests
+import os
+from collections import namedtuple
 from typing import List
 
 # Project
@@ -30,11 +33,7 @@ from dynalist_utils import markdown
 
 MIRROR_LINK_TEXT = "mirror"
 
-class MirrorNode: # pylint: disable=too-few-public-methods
-    """ Composes a node with the id of the node it's to be a mirror of """
-    def __init__(self, node, target_id: str):
-        self.node = node
-        self.target_id = target_id
+MirrorNode = namedtuple("MirrorNode", ["source_node", "target_node", "link"])
 
 def main():
     """ Check args and download doc """
@@ -43,10 +42,9 @@ def main():
         logging.basicConfig(format=app_utils.LOGGING_FORMAT,
                             level=logging.DEBUG if args.trace else logging.WARNING)
         doc = app_utils.read_doc(args)
-        mirror_nodes: List[MirrorNode] = find_mirror_nodes(doc)
-        change_nodes = create_change_nodes(doc, mirror_nodes)
-        print(change_nodes)
-        # Send list to API
+        mirror_nodes = find_mirror_nodes(doc)
+        token = app_utils.get_token(args, os.environ)
+        update_dynalist(doc, token, mirror_nodes)
     except Exception: # pylint: disable=broad-except
         logging.exception("An error occured.")
         sys.exit(1)
@@ -78,20 +76,28 @@ def find_mirror_nodes(doc) -> List[MirrorNode]:
                 continue
             if not doc.has_node(url["zoom_node_id"]):
                 continue
-            mirror_node = MirrorNode(node, url["zoom_node_id"])
-            mirror_nodes.append(mirror_node)
+            source_node = doc.get_node(url["zoom_node_id"])
+            target_node = node
+            mirror_nodes.append(MirrorNode(source_node, target_node, link))
+            break # for link in links
     return mirror_nodes
 
-def create_change_nodes(doc, mirror_nodes: List[MirrorNode]):
-    change_nodes = []
+def update_dynalist(doc, token, mirror_nodes: List[MirrorNode]):
+    changes = []
+    data = { "file_id": doc.get_metadata()["file_id"], 
+             "token": token,
+             "changes": changes }
     for mirror_node in mirror_nodes:
-        change_node = { "action": "edit", "node_id": mirror_node["id"] }
-        source_node = doc.get_node(mirror_node.target_id)
-        print(source_node)
-    return change_nodes
-
-
-
+        link_text = f"[{mirror_node.link['title']}]({mirror_node.link['url']})"
+        change = { "action": "edit" }
+        change["node_id"] = mirror_node.target_node["id"]
+        change["content"] = mirror_node.source_node["content"]
+        change["note"] = mirror_node.source_node["note"] + link_text
+        changes.append(change)
+    print(data)
+    response = requests.post("https://dynalist.io/api/v1/doc/edit", json=data)
+    print(response)
+    print(response.json())
 
 if __name__ == "__main__":
     main()
