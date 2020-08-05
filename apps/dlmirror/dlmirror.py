@@ -92,9 +92,13 @@ def update_dynalist(doc, token, mirror_nodes: List[MirrorNode]):
         link_text = f"[{mirror_node.link['title']}]({mirror_node.link['url']})"
         change = { "action": "edit" }
         change["node_id"] = mirror_node.target_node["id"]
+
+        # Content
         if mirror_node.source_node["content"] != mirror_node.target_node["content"]:
             change_needed = True
             change["content"] = mirror_node.source_node["content"]
+
+        # Note
         if "note" not in mirror_node.source_node:
             change_needed = True
             change["note"] = link_text
@@ -108,8 +112,25 @@ def update_dynalist(doc, token, mirror_nodes: List[MirrorNode]):
             if mirror_node.target_node["note"] != target_note:
                 change_needed = True
                 change["note"] = target_note
+
+        # Color
+        if "color" not in mirror_node.source_node:
+            if "color" in mirror_node.target_node:
+                change_needed = True
+                change["color"] = 0
+        elif "color" not in mirror_node.target_node:
+            change_needed = True
+            change["color"] = mirror_node.source_node["color"]
+        elif mirror_node.source_node["color"] != mirror_node.target_node["color"]:
+            change_needed = True
+            change["color"] = mirror_node.source_node["color"]
+
+
+        # Update if needed
         if change_needed:
             changes.append(change)
+
+    # Update if there are any changes
     if len(changes) == 0:
         logging.info("No changes required.")
     else:
