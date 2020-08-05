@@ -83,14 +83,15 @@ def find_mirror_nodes(doc) -> List[MirrorNode]:
     return mirror_nodes
 
 def update_dynalist(doc, token, mirror_nodes: List[MirrorNode]):
+    """ Check mirror nodes for needed changes, upload to Dynalist """
     changes = []
-    data = { "file_id": doc.get_metadata()["file_id"], 
-             "token": token,
-             "changes": changes }
+    data = {"file_id": doc.get_metadata()["file_id"],
+            "token": token,
+            "changes": changes}
     for mirror_node in mirror_nodes:
         change_needed = False
         link_text = f"[{mirror_node.link['title']}]({mirror_node.link['url']})"
-        change = { "action": "edit" }
+        change = {"action": "edit"}
         change["node_id"] = mirror_node.target_node["id"]
 
         # Content
@@ -135,6 +136,7 @@ def update_dynalist(doc, token, mirror_nodes: List[MirrorNode]):
         logging.info("No changes required.")
     else:
         response = requests.post("https://dynalist.io/api/v1/doc/edit", json=data)
+        logging.info(response.json())
 
 if __name__ == "__main__":
     main()
