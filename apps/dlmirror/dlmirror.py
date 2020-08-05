@@ -21,10 +21,12 @@ are already up-to-date, the document will be unchanged.
 import argparse
 import logging
 import sys
-import requests
 import os
 from collections import namedtuple
 from typing import List
+
+# Libraries
+import requests
 
 # Project
 from dynalist_utils import app_utils
@@ -56,7 +58,7 @@ def get_arguments():
     app_utils.add_standard_arguments(parser)
     return parser.parse_args()
 
-def find_mirror_nodes(doc) -> List[MirrorNode]:
+def find_mirror_nodes(doc):
     """ Return a list of nodes that contain mirror links. """
     mirror_nodes: List[MirrorNode] = []
     for node in doc.get_nodes():
@@ -82,7 +84,8 @@ def find_mirror_nodes(doc) -> List[MirrorNode]:
             break # for link in links
     return mirror_nodes
 
-def update_dynalist(doc, token, mirror_nodes: List[MirrorNode]):
+def update_dynalist(doc, token, mirror_nodes):
+    # pylint: disable=too-many-branches
     """ Check mirror nodes for needed changes, upload to Dynalist """
     changes = []
     data = {"file_id": doc.get_metadata()["file_id"],
