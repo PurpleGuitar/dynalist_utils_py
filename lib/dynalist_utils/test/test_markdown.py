@@ -7,8 +7,8 @@ import pathlib
 import unittest
 
 # Project
-import dynalist
-import markdown
+from dynalist_utils import dynalist
+from dynalist_utils import markdown
 
 
 # pylint: disable=line-too-long

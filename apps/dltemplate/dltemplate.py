@@ -12,7 +12,7 @@ import re
 import sys
 
 # Project
-import app_utils
+from dynalist_utils import app_utils
 
 FIELD_REGEX = re.compile(r"{{([^}]+)}}")
 WHITESPACE_REGEX = re.compile(r"\s\s+")

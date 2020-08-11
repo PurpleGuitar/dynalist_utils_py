@@ -6,7 +6,7 @@ import os
 import unittest
 
 # Project
-import dynalist
+from dynalist_utils import dynalist
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 

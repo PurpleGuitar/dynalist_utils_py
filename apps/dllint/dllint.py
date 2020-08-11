@@ -12,9 +12,9 @@ import logging
 import sys
 
 # Project
-import app_utils
-import dynalist
-import markdown
+from dynalist_utils import app_utils
+from dynalist_utils import dynalist
+from dynalist_utils import markdown
 
 class Level(enum.Enum):
     """ Enumerates message levels """

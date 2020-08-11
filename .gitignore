@@ -1,6 +1,6 @@
 *.swp
-*.json
 .coverage
-
-__pycache__/
 htmlcov/
+
+.mypy_cache/
+__pycache__/
