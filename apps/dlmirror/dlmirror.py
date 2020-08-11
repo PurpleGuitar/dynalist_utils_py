@@ -131,6 +131,18 @@ def update_dynalist(doc, token, mirror_nodes):
             change_needed = True
             change["color"] = mirror_node.source_node["color"]
 
+        # Heading
+        if "heading" not in mirror_node.source_node:
+            if "heading" in mirror_node.target_node:
+                change_needed = True
+                change["heading"] = 0
+        elif "heading" not in mirror_node.target_node:
+            change_needed = True
+            change["heading"] = mirror_node.source_node["heading"]
+        elif mirror_node.source_node["heading"] != mirror_node.target_node["heading"]:
+            change_needed = True
+            change["heading"] = mirror_node.source_node["heading"]
+
         # Update if needed
         if change_needed:
             changes.append(change)
