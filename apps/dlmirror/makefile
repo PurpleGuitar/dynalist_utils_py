@@ -1,7 +1,7 @@
 .PHONY: edit lint
 
 edit:
-	${EDITOR} makefile *.py
+	${EDITOR} makefile *.py dlmirror
 
 lint:
 	export PYTHONPATH=../../lib:${PYTHONPATH}; pylint *.py
