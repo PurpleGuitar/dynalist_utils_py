@@ -82,6 +82,8 @@ def find_mirror_nodes(doc):
             target_node = node
             mirror_nodes.append(MirrorNode(source_node, target_node, link))
             break # for link in links
+    if len(mirror_nodes) > 0:
+        logging.info("Found %d mirror nodes.", len(mirror_nodes))
     return mirror_nodes
 
 def update_dynalist(doc, token, mirror_nodes):
@@ -112,7 +114,7 @@ def update_dynalist(doc, token, mirror_nodes):
                 change_needed = True
                 change["note"] = target_note
         else:
-            target_note = mirror_node.source_node["note"] + "\n" + link_text
+            target_note = mirror_node.source_node["note"] + " " + link_text
             if mirror_node.target_node["note"] != target_note:
                 change_needed = True
                 change["note"] = target_note
@@ -137,6 +139,7 @@ def update_dynalist(doc, token, mirror_nodes):
     if len(changes) == 0:
         logging.info("No changes required.")
     else:
+        logging.info("Updating %d nodes.", len(changes))
         response = requests.post("https://dynalist.io/api/v1/doc/edit", json=data)
         logging.info(response.json())
 
