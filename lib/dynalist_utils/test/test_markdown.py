@@ -82,8 +82,8 @@ class TestConvert(unittest.TestCase):
 
     def test_collapsed_nodes(self):
         """ Test that collapsed nodes render as headers """
-        doc = dynalist.Document.from_json_file(os.path.join(TEST_DIR, "test_collapsed.json"))
-        expected = pathlib.Path(os.path.join(TEST_DIR, "test_collapsed.md")).read_text()
+        doc = dynalist.Document.from_json_file(os.path.join(TEST_DIR, "test_markdown_collapsed.json"))
+        expected = pathlib.Path(os.path.join(TEST_DIR, "test_markdown_collapsed.md")).read_text()
         actual = markdown.convert(doc, "root")
         self.assertEqual(expected, actual)
 

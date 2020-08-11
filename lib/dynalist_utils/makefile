@@ -6,8 +6,8 @@ test:
 	coverage html
 
 lint:
-	export pythonpath=..:${pythonpath}; pylint *.py test/*.py
-	export mypypath=..; mypy *.py test/*.py
+	export PYTHONPATH=..:${pythonpath}; pylint *.py test/*.py
+	export MYPYPATH=..; mypy *.py test/*.py
 
 watch:
 	while inotifywait -e close_write,moved_to,create . test; do clear; make lint; make test; done
