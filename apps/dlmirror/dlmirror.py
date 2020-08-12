@@ -78,6 +78,8 @@ def find_mirror_nodes(doc):
                 continue
             if not doc.has_node(url["zoom_node_id"]):
                 continue
+            if not link["title"] == MIRROR_LINK_TEXT:
+                continue
             source_node = doc.get_node(url["zoom_node_id"])
             target_node = node
             mirror_nodes.append(MirrorNode(source_node, target_node, link))
